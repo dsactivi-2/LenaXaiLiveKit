@@ -1,6 +1,6 @@
 services:
   agent:
-    image: denis8686/lenaxailivekit-lena:${LENA_IMAGE_TAG:-0.1.0-83b0fda}
+    image: denis8686/lenaxailivekit-lena:${LENA_IMAGE_TAG:-0.1.0-e22a84e}
     container_name: telesales-agent
     environment:
       ENVIRONMENT: production
