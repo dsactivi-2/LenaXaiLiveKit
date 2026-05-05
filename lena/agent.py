@@ -10,7 +10,41 @@ from livekit.plugins.xai import realtime as xai_realtime
 from prompt import build_lena_sales_instructions
 from realtime_settings import build_turn_detection
 
+try:
+    from prometheus_client import Counter, start_http_server
+except Exception:  # pragma: no cover
+    Counter = None
+    start_http_server = None
+
 _KNOWN_VOICES = {"ara": "Ara", "eve": "Eve", "leo": "Leo", "rex": "Rex", "sal": "Sal"}
+
+_PROM_STARTED = False
+_TOOL_CALLS = Counter("lena_tool_calls_total", "Tool calls", ["tool"]) if Counter else None
+
+
+def _env_bool(name: str, default: bool = False) -> bool:
+    raw = os.getenv(name)
+    if raw is None:
+        return default
+    raw = raw.strip().lower()
+    if raw in {"1", "true", "yes", "y", "on"}:
+        return True
+    if raw in {"0", "false", "no", "n", "off"}:
+        return False
+    return default
+
+
+def _maybe_start_prometheus() -> None:
+    global _PROM_STARTED
+    if _PROM_STARTED:
+        return
+    if not _env_bool("PROMETHEUS_ENABLED", False):
+        return
+    if start_http_server is None:
+        return
+    port = int(os.getenv("PROMETHEUS_PORT", "8000") or "8000")
+    start_http_server(port)
+    _PROM_STARTED = True
 
 
 def _get_voice() -> str:
@@ -24,6 +58,19 @@ def _get_voice() -> str:
 def _get_model() -> str:
     return (os.getenv("LENA_XAI_MODEL") or os.getenv("XAI_MODEL") or "grok-voice-fast-1.0").strip()
 
+
+def _tooling_enabled() -> bool:
+    return _env_bool("ENABLE_TOOL_CALLING", True)
+
+
+def _web_search_enabled() -> bool:
+    return _env_bool("ENABLE_WEB_SEARCH", False)
+
+
+def _x_search_enabled() -> bool:
+    return _env_bool("ENABLE_X_SEARCH", False)
+
+
 class LenaAgent(Agent):
     def __init__(self):
         super().__init__(
@@ -33,14 +80,47 @@ class LenaAgent(Agent):
     @agents.function_tool
     async def lookup_company(self, query: str) -> str:
         """Firmen-Infos/HR/kürzliche Job-Ads recherchieren."""
+        if _TOOL_CALLS:
+            _TOOL_CALLS.labels(tool="lookup_company").inc()
+        if not _tooling_enabled():
+            return "Tooling ist deaktiviert. Bitte frage stattdessen nach den Firmendaten oder bitte um eine E-Mail."
         return f"Für {query}: IT-Job auf Stepstone letzte Woche, HR: hr@firma.de, +49..."
 
     @agents.function_tool
     async def get_ad_package(self, platform: str) -> str:
         """Ad-Pakete/Preise."""
+        if _TOOL_CALLS:
+            _TOOL_CALLS.labels(tool="get_ad_package").inc()
+        if not _tooling_enabled():
+            return "Tooling ist deaktiviert. Bitte nenne die Pakete grob und biete an, Details per E-Mail zu senden."
         return f"{platform}: Basic 299€/Monat (150k Views), Premium 599€."
 
+    @agents.function_tool
+    async def web_search(self, query: str) -> str:
+        """(Optional) Web-Suche nach Firmendaten. Muss separat integriert werden."""
+        if _TOOL_CALLS:
+            _TOOL_CALLS.labels(tool="web_search").inc()
+        if not _web_search_enabled():
+            return "Web-Suche ist deaktiviert."
+        return (
+            "Web-Suche ist aktiviert, aber noch nicht an einen Anbieter angebunden. "
+            "Sag mir, welchen Provider du willst (z. B. Serper, Tavily) und gib mir den API-Key als Secret."
+        )
+
+    @agents.function_tool
+    async def x_search(self, query: str) -> str:
+        """(Optional) X/Twitter Suche. Muss separat integriert werden."""
+        if _TOOL_CALLS:
+            _TOOL_CALLS.labels(tool="x_search").inc()
+        if not _x_search_enabled():
+            return "X-Suche ist deaktiviert."
+        return (
+            "X-Suche ist aktiviert, aber noch nicht integriert. "
+            "Wenn du Zugriff via X API oder 3rd-party willst, sag mir den Provider und gib mir den Key als Secret."
+        )
+
 async def entrypoint(ctx: JobContext):
+    _maybe_start_prometheus()
     await ctx.connect(auto_subscribe=agents.AutoSubscribe.AUDIO_ONLY)
 
     session = AgentSession(

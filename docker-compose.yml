@@ -1,6 +1,6 @@
 services:
   agent:
-    image: denis8686/lenaxailivekit-lena:latest
+    image: denis8686/lenaxailivekit-lena:${LENA_IMAGE_TAG:-0.1.0-9729e00}
     container_name: telesales-agent
     environment:
       ENVIRONMENT: production
@@ -16,16 +16,26 @@ services:
       LIVEKIT_URL: ${LIVEKIT_URL}
       LIVEKIT_API_KEY: ${LIVEKIT_API_KEY}
       LIVEKIT_API_SECRET: ${LIVEKIT_API_SECRET}
+      # Backwards-compat for other compose templates
+      LIVEKIT_SECRET_KEY: ${LIVEKIT_API_SECRET}
 
       # Turn detection tuning (aliases supported by code)
       TURN_DETECTION: ${TURN_DETECTION:-server_vad}
-      VAD_THRESHOLD: ${VAD_THRESHOLD:-0.5}
-      PREFIX_PADDING_MS: ${PREFIX_PADDING_MS:-160}
-      SILENCE_DURATION_MS: ${SILENCE_DURATION_MS:-520}
+      VAD_THRESHOLD: ${VAD_THRESHOLD:-0.4}
+      PREFIX_PADDING_MS: ${PREFIX_PADDING_MS:-400}
+      SILENCE_DURATION_MS: ${SILENCE_DURATION_MS:-250}
+
+      # Feature flags
+      ENABLE_TOOL_CALLING: ${ENABLE_TOOL_CALLING:-true}
+      ENABLE_WEB_SEARCH: ${ENABLE_WEB_SEARCH:-false}
+      ENABLE_X_SEARCH: ${ENABLE_X_SEARCH:-false}
+
+      # Prometheus metrics (optional)
+      PROMETHEUS_ENABLED: ${PROMETHEUS_ENABLED:-true}
+      PROMETHEUS_PORT: ${PROMETHEUS_PORT:-8000}
 
       # Prompt branding (optional)
       LENA_COMPANY_NAME: ${LENA_COMPANY_NAME:-step2job Berlin}
       LENA_OFFER_NAME: ${LENA_OFFER_NAME:-Stellenanzeigen-/Recruiting-Ads auf Jobportalen}
       LENA_TARGET_CUSTOMERS: ${LENA_TARGET_CUSTOMERS:-HR- und Recruiting-Verantwortliche}
     restart: unless-stopped
-

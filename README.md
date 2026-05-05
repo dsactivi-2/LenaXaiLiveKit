@@ -26,6 +26,16 @@ lk cloud auth
 lk agent create --region eu-central --secrets-file secrets.env .
 ```
 
+## Self-host (Docker)
+
+Dieses Repo enthält eine minimale `docker-compose.yml` im Repo-Root, um den Agent-Worker außerhalb von LiveKit Cloud laufen zu lassen.
+
+- Image: `denis8686/lenaxailivekit-lena:<version>` (empfohlen) oder `:latest`
+- Feature Flags:
+  - `ENABLE_TOOL_CALLING` (default: `true`)
+  - `ENABLE_WEB_SEARCH` / `ENABLE_X_SEARCH` (default: `false`; erfordert zusätzliche Provider-Integration)
+  - `PROMETHEUS_ENABLED` (default: `true`), Port via `PROMETHEUS_PORT` (default: `8000`)
+
 ## Telephony (Telnyx SIP) – Überblick
 
 Für Telnyx brauchst du:
@@ -44,4 +54,3 @@ Keine Secrets committen:
 - LiveKit Cloud Secrets werden via `lk agent create/update-secrets` gesetzt
 
 Details: `docs/security-secrets.md`.
-

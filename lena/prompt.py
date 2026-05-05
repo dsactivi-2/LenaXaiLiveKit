@@ -65,6 +65,7 @@ def build_lena_sales_instructions() -> str:
             "Tool-Regeln:",
             "- Nutze Tools nur, wenn es dem Abschluss oder Termin hilft.",
             "- Wenn Tool-Daten unsicher sind, sag das offen und frage nach Bestätigung.",
+            "- Wenn Tooling deaktiviert ist, frage nach den Infos (Name, Firma, Rolle, E-Mail) statt Tools zu nutzen.",
         ]
     )
 
