@@ -2,10 +2,12 @@
 
 LiveKit Agent (Python) mit xAI Grok Voice Agent API (`livekit.plugins.xai`) für deutschsprachige Telesales-Calls zu Jobanzeigen (StepStone/Indeed).
 
+> Projekt-Überblick & Doku: `../README.md` und `../docs/README.md`
+
 ## Setup
 
 ```bash
-cd livekit-telesales-agent
+cd livekit-telesales-agent/lena
 cp .env.example .env
 ```
 
@@ -32,11 +34,16 @@ uv run agent.py dev
 Aus dem Projektverzeichnis:
 
 ```bash
-lk agent create
+lk cloud auth
+cp secrets.env.example secrets.env
+# secrets.env befüllen (keine Secrets committen)
+lk agent create --region eu-central --secrets-file secrets.env .
 ```
 
 ## Konfiguration
 
-- LiveKit: `LIVEKIT_URL`, `LIVEKIT_API_KEY`, `LIVEKIT_API_SECRET`, optional `LIVEKIT_ROOM`, `LIVEKIT_IDENTITY`
+- LiveKit (für CLI/Cloud): `LIVEKIT_URL`, `LIVEKIT_API_KEY`, `LIVEKIT_API_SECRET`
 - xAI: `XAI_API_KEY`
-- Prompt: `COMPANY_NAME`, `OFFER_NAME`, `TARGET_CUSTOMERS`
+- Telnyx (für Setup/Automation): `TELNYX_API_KEY`
+
+Telephony Setup (Telnyx ↔ LiveKit): `../docs/telnyx-livekit-setup.md`

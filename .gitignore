@@ -5,10 +5,17 @@ __pycache__/
 # local env / secrets
 .env
 secrets.env
-secrets.env.*
+secrets.env.bak
+secrets.env.local
+secrets.env.*.bak
+secrets.env.*.local
+!**/secrets.env.example
 telnyx_*.json
 telnyx_*_payload.json
 telnyx_*_creds.json
+
+# local artifacts (recommended)
+lena/.local/
 
 # virtualenvs / build
 .venv/
@@ -16,3 +23,6 @@ telnyx_*_creds.json
 .pytest_cache/
 .mypy_cache/
 .ruff_cache/
+
+# nested repos / vendor
+mxagent/awesome-openclaw-agents/
