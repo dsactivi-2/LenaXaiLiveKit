@@ -4,7 +4,10 @@ load_dotenv()
 
 from livekit import agents
 from livekit.agents import AgentSession, Agent, JobContext, WorkerOptions, cli
-from livekit.plugins import xai
+
+from livekit.plugins import langchain as lk_langchain
+
+from langgraph_workflow import create_workflow
 
 class LenaAgent(Agent):
     def __init__(self):
@@ -30,28 +33,8 @@ DSGVO: Nur öffentliche Daten. Natürliches, flüssiges Deutsch, enthusiastisch,
 async def entrypoint(ctx: JobContext):
     await ctx.connect(auto_subscribe=agents.AutoSubscribe.AUDIO_ONLY)
 
-    use_langgraph = os.getenv("LENA_USE_LANGGRAPH", "false").lower() == "true"
-    if use_langgraph:
-        from livekit.plugins import langchain as lk_langchain
+    session = AgentSession(llm=lk_langchain.LLMAdapter(graph=create_workflow()))
 
-        from langgraph_workflow import create_workflow
-
-        llm = lk_langchain.LLMAdapter(graph=create_workflow())
-    else:
-        llm = xai.realtime.RealtimeModel(
-            api_key=os.environ["XAI_API_KEY"],
-            model=os.getenv("XAI_MODEL", "grok-voice-think-fast-1.0"),
-            voice=os.getenv("XAI_VOICE", "sal"),
-            turn_detection={
-                "type": "server_vad",
-                "threshold": 0.5,
-                "prefix_padding_ms": 300,
-                "silence_duration_ms": 800,
-            },
-        )
-
-    session = AgentSession(llm=llm)
-    
     await session.start(LenaAgent(), room=ctx.room)
 
 if __name__ == "__main__":
