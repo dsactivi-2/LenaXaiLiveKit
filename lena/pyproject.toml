@@ -12,6 +12,7 @@ dependencies = [
   "telnyx==4.111.0",
   "python-dotenv>=1.0.1",
   "livekit-agents[silero]~=1.5 ; python_full_version >= '3.11'",
+  "pytest>=8.0.0",
 ]
 
 [project.scripts]

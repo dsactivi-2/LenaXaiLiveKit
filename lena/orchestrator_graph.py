@@ -32,7 +32,17 @@ def create_orchestrator_graph():
         user_text = state.get("user_text", "")
         stage = state.get("stage", "intro")
 
-        if _contains_any(user_text, ["nicht anrufen", "rausnehmen", "opt out", "opt-out", "keine werbung"]):
+        if _contains_any(
+            user_text,
+            [
+                "nicht anrufen",
+                "nicht mehr anrufen",
+                "rausnehmen",
+                "opt out",
+                "opt-out",
+                "keine werbung",
+            ],
+        ):
             return {"stage": "optout", "hint": "OPT-OUT: Sofort entschuldigen, Opt-out bestätigen, Gespräch beenden."}
 
         if _contains_any(user_text, ["keine zeit", "gerade schlecht", "später", "rufen sie später", "rufen sie später an"]):
@@ -83,4 +93,3 @@ class LangGraphOrchestrator:
         result = self._graph.invoke({"user_text": user_text, "stage": self._stage})
         self._stage = result.get("stage", self._stage)
         return OrchestratorOutput(stage=self._stage, hint=result.get("hint", "").strip())
-
