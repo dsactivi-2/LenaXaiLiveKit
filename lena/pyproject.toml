@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "livekit-telesales-agent"
+version = "0.1.0"
+description = "German-only telesales voice agent for job portal ads (StepStone/Indeed) using LiveKit + xAI realtime."
+requires-python = ">=3.10"
+dependencies = [
+  "livekit-agents[xai]==1.5.7",
+  "telnyx==4.111.0",
+  "python-dotenv>=1.0.1",
+]
+
+[project.scripts]
+agent = "agent:main"
+
+[tool.setuptools]
+py-modules = ["agent", "prompt"]
