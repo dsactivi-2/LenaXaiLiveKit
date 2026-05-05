@@ -10,6 +10,20 @@ from livekit.plugins.xai import realtime as xai_realtime
 from prompt import build_lena_sales_instructions
 from realtime_settings import build_turn_detection
 
+_KNOWN_VOICES = {"ara": "Ara", "eve": "Eve", "leo": "Leo", "rex": "Rex", "sal": "Sal"}
+
+
+def _get_voice() -> str:
+    raw = os.getenv("LENA_XAI_VOICE") or os.getenv("XAI_VOICE") or "Ara"
+    raw = raw.strip()
+    if raw == "":
+        return "Ara"
+    return _KNOWN_VOICES.get(raw.lower(), raw)
+
+
+def _get_model() -> str:
+    return (os.getenv("LENA_XAI_MODEL") or os.getenv("XAI_MODEL") or "grok-voice-fast-1.0").strip()
+
 class LenaAgent(Agent):
     def __init__(self):
         super().__init__(
@@ -32,8 +46,8 @@ async def entrypoint(ctx: JobContext):
     session = AgentSession(
         llm=xai_realtime.RealtimeModel(
             api_key=os.getenv("XAI_API_KEY"),
-            model=os.getenv("LENA_XAI_MODEL", "grok-voice-fast-1.0"),
-            voice=os.getenv("LENA_XAI_VOICE", "Ara"),
+            model=_get_model(),
+            voice=_get_voice(),
             turn_detection=build_turn_detection(),
         )
     )

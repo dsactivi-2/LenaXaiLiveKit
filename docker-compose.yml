@@ -1,0 +1,31 @@
+services:
+  agent:
+    image: denis8686/lenaxailivekit-lena:latest
+    container_name: telesales-agent
+    environment:
+      ENVIRONMENT: production
+      LOG_LEVEL: INFO
+      PYTHONUNBUFFERED: "1"
+
+      # xAI Realtime
+      XAI_API_KEY: ${XAI_API_KEY}
+      XAI_MODEL: ${XAI_MODEL:-grok-voice-fast-1.0}
+      XAI_VOICE: ${XAI_VOICE:-Ara}
+
+      # LiveKit worker credentials (required for self-hosted worker)
+      LIVEKIT_URL: ${LIVEKIT_URL}
+      LIVEKIT_API_KEY: ${LIVEKIT_API_KEY}
+      LIVEKIT_API_SECRET: ${LIVEKIT_API_SECRET}
+
+      # Turn detection tuning (aliases supported by code)
+      TURN_DETECTION: ${TURN_DETECTION:-server_vad}
+      VAD_THRESHOLD: ${VAD_THRESHOLD:-0.5}
+      PREFIX_PADDING_MS: ${PREFIX_PADDING_MS:-160}
+      SILENCE_DURATION_MS: ${SILENCE_DURATION_MS:-520}
+
+      # Prompt branding (optional)
+      LENA_COMPANY_NAME: ${LENA_COMPANY_NAME:-step2job Berlin}
+      LENA_OFFER_NAME: ${LENA_OFFER_NAME:-Stellenanzeigen-/Recruiting-Ads auf Jobportalen}
+      LENA_TARGET_CUSTOMERS: ${LENA_TARGET_CUSTOMERS:-HR- und Recruiting-Verantwortliche}
+    restart: unless-stopped
+
