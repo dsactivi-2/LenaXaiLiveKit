@@ -10,6 +10,7 @@ from livekit.plugins.xai import realtime as xai_realtime
 from prompt import build_lena_sales_instructions
 from realtime_settings import build_turn_detection
 from orchestrator_graph import LangGraphOrchestrator
+from livekit.agents.types import APIConnectOptions
 
 try:
     from prometheus_client import Counter, start_http_server
@@ -58,6 +59,33 @@ def _get_voice() -> str:
 
 def _get_model() -> str:
     return (os.getenv("LENA_XAI_MODEL") or os.getenv("XAI_MODEL") or "grok-voice-fast-1.0").strip()
+
+def _get_int_env(name: str, default: int) -> int:
+    raw = os.getenv(name)
+    if raw is None or raw.strip() == "":
+        return default
+    try:
+        return int(raw)
+    except ValueError:
+        return default
+
+
+def _get_float_env(name: str, default: float) -> float:
+    raw = os.getenv(name)
+    if raw is None or raw.strip() == "":
+        return default
+    try:
+        return float(raw)
+    except ValueError:
+        return default
+
+
+def _get_conn_options() -> APIConnectOptions:
+    # Aliases to match common env naming
+    max_retry = _get_int_env("XAI_MAX_RETRIES", _get_int_env("LENA_XAI_MAX_RETRIES", 3))
+    timeout = _get_float_env("XAI_TIMEOUT", _get_float_env("LENA_XAI_TIMEOUT", 10.0))
+    retry_interval = _get_float_env("XAI_RETRY_INTERVAL", _get_float_env("LENA_XAI_RETRY_INTERVAL", 2.0))
+    return APIConnectOptions(max_retry=max_retry, timeout=timeout, retry_interval=retry_interval)
 
 
 def _tooling_enabled() -> bool:
@@ -150,6 +178,7 @@ async def entrypoint(ctx: JobContext):
             model=_get_model(),
             voice=_get_voice(),
             turn_detection=build_turn_detection(),
+            conn_options=_get_conn_options(),
         )
     )
 
