@@ -29,6 +29,19 @@ pip install -e .
 uv run agent.py dev
 ```
 
+## LangGraph / LangChain (optional)
+
+Dieses Projekt kann optional den LiveKit LangChain Adapter nutzen, um ein LangGraph-Workflow als „LLM“ zu verwenden.
+
+Aktivieren:
+
+```bash
+export LENA_USE_LANGGRAPH=true
+uv run agent.py dev
+```
+
+Workflow-Beispiel: `langgraph_workflow.py`
+
 ## Deploy (LiveKit Cloud)
 
 Aus dem Projektverzeichnis:
