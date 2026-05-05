@@ -37,5 +37,17 @@ async def entrypoint(ctx: JobContext):
 
     await session.start(LenaAgent(), room=ctx.room)
 
+
+def _prewarm(_: agents.JobProcess) -> None:
+    # Optional: only available on Python 3.11+ (LiveKit Cloud uses 3.13).
+    try:
+        from livekit.agents import silero
+
+        silero.VAD.load()
+    except Exception:
+        # Keep startup resilient on dev machines without silero deps.
+        return
+
+
 if __name__ == "__main__":
-    cli.run_app(WorkerOptions(entrypoint_fnc=entrypoint, agent_name="lena"))
+    cli.run_app(WorkerOptions(entrypoint_fnc=entrypoint, prewarm_fnc=_prewarm, agent_name="lena"))
