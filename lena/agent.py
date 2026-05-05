@@ -9,6 +9,7 @@ from livekit.plugins.xai import realtime as xai_realtime
 
 from prompt import build_lena_sales_instructions
 from realtime_settings import build_turn_detection
+from orchestrator_graph import LangGraphOrchestrator
 
 try:
     from prometheus_client import Counter, start_http_server
@@ -73,9 +74,29 @@ def _x_search_enabled() -> bool:
 
 class LenaAgent(Agent):
     def __init__(self):
+        self._orchestrator = LangGraphOrchestrator()
         super().__init__(
             instructions=build_lena_sales_instructions(),
         )
+
+    async def on_user_turn_completed(self, turn_ctx, new_message) -> None:
+        if not self._orchestrator.enabled():
+            return
+
+        # Keep it fast: deterministic graph, no network/LLM calls.
+        content_parts = getattr(new_message, "content", None) or []
+        if isinstance(content_parts, str):
+            user_text = content_parts
+        else:
+            user_text = " ".join([str(p) for p in content_parts])
+
+        out = self._orchestrator.process(user_text)
+        if out.hint:
+            turn_ctx.add_message(
+                role="system",
+                content=f"ORCH({out.stage}): {out.hint}",
+                extra={"lena_orchestrator": True, "stage": out.stage},
+            )
 
     @agents.function_tool
     async def lookup_company(self, query: str) -> str:
