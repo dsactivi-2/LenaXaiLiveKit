@@ -29,11 +29,11 @@ pip install -e .
 uv run agent.py dev
 ```
 
-## LangGraph / LangChain (optional)
+## Konfiguration (wichtig)
 
-Dieses Projekt nutzt den LiveKit LangChain Adapter, um ein LangGraph-Workflow als „LLM“ zu verwenden.
-
-Workflow-Beispiel: `langgraph_workflow.py`
+- xAI Realtime: `XAI_API_KEY`
+- Turn detection (telephony): `LENA_TURN_*` (Defaults in `realtime_settings.py`)
+- Branding/Offer: `LENA_COMPANY_NAME`, `LENA_OFFER_NAME`, `LENA_TARGET_CUSTOMERS`
 
 ## Deploy (LiveKit Cloud)
 
@@ -46,10 +46,9 @@ cp secrets.env.example secrets.env
 lk agent create --region eu-central --secrets-file secrets.env .
 ```
 
-## Konfiguration
+## Voraussetzungen
 
 - LiveKit (für CLI/Cloud): `LIVEKIT_URL`, `LIVEKIT_API_KEY`, `LIVEKIT_API_SECRET`
-- xAI: `XAI_API_KEY`
 - Telnyx (für Setup/Automation): `TELNYX_API_KEY`
 
 Telephony Setup (Telnyx ↔ LiveKit): `../docs/telnyx-livekit-setup.md`

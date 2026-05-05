@@ -1,3 +1,5 @@
+import os
+
 def build_german_jobads_instructions(company_name: str, offer_name: str, target_customers: str) -> str:
     company = company_name or "unser Unternehmen"
     offer = offer_name or "Stellenanzeigen auf Jobportalen (z. B. StepStone/Indeed)"
@@ -40,3 +42,30 @@ def build_german_jobads_instructions(company_name: str, offer_name: str, target_
         ]
     )
 
+
+def build_lena_sales_instructions() -> str:
+    company_name = os.getenv("LENA_COMPANY_NAME", "step2job Berlin")
+    offer_name = os.getenv(
+        "LENA_OFFER_NAME",
+        "Stellenanzeigen-/Recruiting-Ads auf Jobportalen (z. B. StepStone, Indeed) inkl. Performance-Optimierung",
+    )
+    target_customers = os.getenv("LENA_TARGET_CUSTOMERS", "HR- und Recruiting-Verantwortliche")
+
+    base = build_german_jobads_instructions(company_name, offer_name, target_customers)
+
+    extra = "\n".join(
+        [
+            "",
+            "Sales-Playbook (kurz):",
+            "- Hook (1 Satz): 'Ich habe gesehen, dass Sie kürzlich Positionen ausgeschrieben haben – darf ich kurz zwei Fragen stellen, damit ich prüfen kann, ob wir Ihnen mehr qualifizierte Bewerbungen liefern können?'",
+            "- Einwand 'kein Budget': 'Verstehe ich. Wäre es fair, wenn wir kurz klären, wie dringend die Besetzung ist und was eine unbesetzte Stelle pro Woche kostet?'",
+            "- Einwand 'haben bereits Anbieter': 'Super. Dann geht’s nur darum, ob wir zusätzlich Reichweite oder Qualität liefern. Was läuft aktuell gut – und was möchten Sie verbessern?'",
+            "- Abschluss: Ziel ist immer ein Termin (zehn bis fünfzehn Minuten) mit einem Menschen. Wenn abgelehnt: Erlaubnis für Follow-up plus E-Mail.",
+            "",
+            "Tool-Regeln:",
+            "- Nutze Tools nur, wenn es dem Abschluss oder Termin hilft.",
+            "- Wenn Tool-Daten unsicher sind, sag das offen und frage nach Bestätigung.",
+        ]
+    )
+
+    return base + extra
